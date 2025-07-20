@@ -27,6 +27,43 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz2')}>
         <Text style={styles.buttonText}>Toán + lv2</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz3')}>
+        <Text style={styles.buttonText}>Toán + lv3</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Toán + lv4</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/SimpleRules')}>
+        <Text style={styles.buttonText}>Simple Rules</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Small Friend Rules (+)</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Small Friend Rules (-)</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Big Friend Rules (+)</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Big Friend Rules (-)</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Basic Rules</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/soroban/quiz4')}>
+        <Text style={styles.buttonText}>Advanced Rules</Text>
+      </TouchableOpacity>            
+
     </View>
   );
 }
