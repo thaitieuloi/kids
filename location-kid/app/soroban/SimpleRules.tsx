@@ -2,7 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
-  Platform,
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,16 +10,43 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-// Giả định các hooks và utils này tồn tại và hoạt động đúng
 import { useAudioPlayer } from "../../hooks/useAudioPlayer";
 import { useQuizState } from "../../hooks/useQuizState";
 import { playCorrect, playDing, playWrong } from "../../utils/audioPlayer";
 
-// --- Component Con: Giao diện Chơi Quiz (Sau khi nhấn Bắt đầu) ---
+const { width } = Dimensions.get("window");
+
+const QuizFinished = ({ state, dispatch }) => {
+  const handlePlayAgain = () => {
+    dispatch({ type: "RESET" });
+  };
+
+  return (
+    <View style={styles.quizContainer}>
+      <Text style={styles.title}>Hoàn thành!</Text>
+      <View style={styles.greenBox}>
+        <Text style={styles.finishedText}>
+          Chúc mừng bạn đã hoàn thành bài test.
+        </Text>
+        <Text style={styles.scoreText}>
+          Tổng điểm của bạn là: {state.totalScore}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={styles.retryBtn}
+        onPress={handlePlayAgain}
+        accessible={true}
+        accessibilityLabel="Chơi lại bài test"
+      >
+        <Text style={styles.retryText}>Chơi lại 🔁</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const QuizActive = ({ state, dispatch }) => {
   const starOpacity = useRef(new Animated.Value(0)).current;
 
-  // Effect cho âm thanh và animation khi có kết quả
   useEffect(() => {
     if (state.result === "correct") {
       playCorrect();
@@ -41,42 +68,70 @@ const QuizActive = ({ state, dispatch }) => {
   }, [state.result]);
 
   const handleCheck = () => dispatch({ type: "CHECK_ANSWER" });
-  const handleRetry = () => dispatch({ type: "RETRY" });
+  const handleNextQuestion = () => dispatch({ type: "RETRY" });
 
-  // Hàm render câu hỏi, làm cho JSX chính gọn hơn
+  const getFontSize = () => {
+    const digits = state.settings?.digits || "1d<10";
+    if (digits.includes("5d")) return 30;
+    if (digits.includes("4d") || digits.includes("3d")) return 36;
+    return 50;
+  };
+
+  const getStepColor = (index: number) => {
+    return index % 2 === 0 ? "#0288D1" : "#F57C00";
+  };
+
   const renderQuestion = () => {
+    if (!state.quiz || !state.quiz.steps || state.quiz.steps.length === 0) {
+      return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Đang tải...</Text>;
+    }
+
     const isLastStep = state.stepIndex === state.quiz.steps.length - 1;
     const showAnswer = isLastStep && state.result !== null;
 
     if (showAnswer) {
-      const expression =
-        state.quiz.steps
-          .slice(0, -1)
-          .map((s) => s.display.replace("+", "").trim())
-          .join(" + ") + ` = ${state.quiz.correct}`;
-      return <Text style={styles.questionText}>{expression}</Text>;
+      const expression = state.quiz.steps
+        .slice(0, -1)
+        .map((s, index) => (
+          <Text key={index} style={{ color: getStepColor(index) }}>
+            {s.display.replace("+", "").trim()}
+            {index < state.quiz.steps.length - 2 ? " + " : " "}
+          </Text>
+        ));
+      return (
+        <Text style={[styles.questionText, { fontSize: getFontSize() }]}>
+          {expression} = {state.quiz.correct}
+        </Text>
+      );
     }
 
     if (isLastStep) {
-      return <Text style={styles.questionText}>Kết quả = ???</Text>;
+      return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Kết quả = ???</Text>;
     }
 
     const currentStep = state.quiz.steps[state.stepIndex];
-    // Kiểm tra currentStep tồn tại trước khi truy cập display
-    return <Text style={styles.questionText}>{currentStep?.display}</Text>;
+    return (
+      <Text style={[styles.questionText, { fontSize: getFontSize(), color: getStepColor(state.stepIndex) }]}>
+        {currentStep?.display}
+      </Text>
+    );
   };
 
   return (
-    // Giao diện này có nền xanh nhạt để tạo cảm giác liền mạch
     <View style={styles.quizContainer}>
+      <View style={styles.statsContainer}>
+        <Text style={styles.statsText}>
+          Câu hỏi: {state.currentQuestion}/{state.settings?.questions}
+        </Text>
+        <Text style={styles.statsText}>Điểm: {state.totalScore}</Text>
+      </View>
+
       <Text style={styles.title}>Giải toán</Text>
 
       {state.error && <Text style={styles.errorText}>Lỗi: {state.error}</Text>}
 
-      {/* Hiển thị câu hỏi và các lựa chọn */}
       <View style={styles.questionContainer}>{renderQuestion()}</View>
 
-      {/* Hiển thị các lựa chọn khi đến bước cuối và chưa có kết quả */}
       {state.stepIndex === state.quiz.steps.length - 1 &&
         state.result === null && (
           <>
@@ -91,8 +146,12 @@ const QuizActive = ({ state, dispatch }) => {
                     styles.optionBtn,
                     state.selected === opt && styles.optionSelected,
                   ]}
+                  accessible={true}
+                  accessibilityLabel={`Lựa chọn ${opt}`}
                 >
-                  <Text style={styles.optionText}>{opt}</Text>
+                  <Text style={[styles.optionText, { fontSize: getFontSize() - 10 }]}>
+                    {opt}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -100,16 +159,17 @@ const QuizActive = ({ state, dispatch }) => {
               onPress={handleCheck}
               style={[
                 styles.checkBtn,
-                !state.selected && styles.checkBtnDisabled,
+                state.selected === null && styles.checkBtnDisabled,
               ]}
-              disabled={!state.selected}
+              disabled={state.selected === null}
+              accessible={true}
+              accessibilityLabel="Kiểm tra đáp án"
             >
               <Text style={styles.checkText}>Kiểm tra</Text>
             </TouchableOpacity>
           </>
         )}
 
-      {/* Hiển thị kết quả và nút chơi lại */}
       {state.result !== null && (
         <>
           <Text
@@ -122,7 +182,12 @@ const QuizActive = ({ state, dispatch }) => {
               ? "🎉 Chính xác!"
               : "❌ Sai rồi, thử lại nhé."}
           </Text>
-          <TouchableOpacity onPress={handleRetry} style={styles.retryBtn}>
+          <TouchableOpacity
+            onPress={handleNextQuestion}
+            style={styles.retryBtn}
+            accessible={true}
+            accessibilityLabel="Tiếp tục câu hỏi tiếp theo"
+          >
             <Text style={styles.retryText}>Tiếp tục 🔁</Text>
           </TouchableOpacity>
         </>
@@ -135,34 +200,31 @@ const QuizActive = ({ state, dispatch }) => {
   );
 };
 
-// --- Component Chính: Quản lý trạng thái và điều phối hiển thị ---
 export default function CountingWithQuizScreen() {
   const [settings, setSettings] = useState({
     simpleRule: "Simple Rules Basic",
+    digits: "1d<10",
     typeTest: "Visual",
-    randoms: "10",
-    speed: "1",
+    randoms: "2",
+    speed: "3",
     questions: "5",
     score: "1",
     timeAnswers: "10",
   });
+  const [warning, setWarning] = useState<string | null>(null);
 
   const { state, dispatch, startStepTimer, clearTimer } = useQuizState();
 
-  // Hook để xử lý audio cho các bước của quiz
-  useAudioPlayer(state.quiz.steps[state.stepIndex]?.soundUris, (error) =>
+  useAudioPlayer(state.quiz?.steps[state.stepIndex]?.soundUris, (error) =>
     dispatch({ type: "SET_ERROR", payload: error.message })
   );
 
-  // Effect chính điều khiển logic của quiz (bắt đầu đếm giờ, chuyển step)
   useEffect(() => {
-    // Chỉ chạy khi quiz đã bắt đầu và chưa có kết quả cuối cùng
-    if (!state.hasStarted || state.result !== null) return;
+    if (!state.hasStarted || state.result !== null || state.isFinished) return;
 
     let cancelled = false;
     const start = async () => {
       try {
-        // Phát âm thanh báo hiệu và bắt đầu đếm giờ cho step
         await playDing();
         if (!cancelled) {
           startStepTimer();
@@ -178,11 +240,40 @@ export default function CountingWithQuizScreen() {
       cancelled = true;
       clearTimer();
     };
-  }, [state.stepIndex, state.hasStarted, state.result]);
+  }, [state.stepIndex, state.hasStarted, state.result, state.isFinished]);
 
-  // Hàm xử lý khi nhấn nút "Bắt đầu"
+  const handleInputChange = (key: string, val: string) => {
+    const numericValue = val.replace(/[^0-9]/g, "");
+    let constrainedValue = numericValue;
+    if (key === "randoms") {
+      constrainedValue = Math.min(Math.max(Number(numericValue) || 2, 2), 20).toString(); // Giới hạn 2-20
+    } else if (key === "questions") {
+      constrainedValue = Math.min(Number(numericValue) || 1, 100).toString();
+    } else if (key === "speed") {
+      constrainedValue = Math.min(Number(numericValue) || 1, 180).toString();
+    } else if (key === "score") {
+      constrainedValue = Math.min(Number(numericValue) || 1, 100).toString();
+    } else if (key === "timeAnswers") {
+      constrainedValue = Math.min(Number(numericValue) || 10, 60).toString();
+    }
+
+    const newSettings = { ...settings, [key]: constrainedValue };
+    const randomsNum = Number(newSettings.randoms) || 2;
+    const speedNum = Number(newSettings.speed) || 1;
+    const stepDuration = speedNum / randomsNum;
+    if (stepDuration < 0.1) {
+      const actualTime = (randomsNum * 0.1).toFixed(1);
+      setWarning(
+        `Thời gian mỗi dòng (${stepDuration.toFixed(2)} giây) quá ngắn. Cần ít nhất 0.3 giây/dòng. Tổng thời gian thực tế sẽ là ${actualTime} giây. Vui lòng tăng Tổng thời gian hoặc giảm Số dòng.`
+      );
+    } else {
+      setWarning(null);
+    }
+
+    setSettings(newSettings);
+  };
+
   const handleStartQuiz = () => {
-    // Chuyển đổi các giá trị settings từ chuỗi sang số để reducer xử lý
     const numericSettings = Object.entries(settings).reduce(
       (acc, [key, value]) => {
         const numericKeys = [
@@ -197,53 +288,87 @@ export default function CountingWithQuizScreen() {
       },
       {}
     );
-
-    // Dispatch action START với payload là settings đã được chuẩn hóa
     dispatch({ type: "START", payload: numericSettings });
   };
 
-  // --- LOGIC RENDER CHÍNH ---
-  // Nếu quiz chưa bắt đầu, hiển thị màn hình cấu hình
+  if (state.isFinished) {
+    return <QuizFinished state={state} dispatch={dispatch} />;
+  }
+
   if (!state.hasStarted) {
     return (
       <ScrollView contentContainerStyle={styles.configContainer}>
         <Text style={styles.title}>Cấu hình bài test</Text>
 
-        {/* Phần cấu hình */}
+        {warning && <Text style={styles.warningText}>{warning}</Text>}
+
         <View style={styles.greenBox}>
           <View style={styles.row}>
-            <Text style={styles.label}>Simple Rules:</Text>
-            <Picker
-              selectedValue={settings.simpleRule}
-              style={styles.picker}
-              onValueChange={(val) =>
-                setSettings({ ...settings, simpleRule: val })
-              }
-            >
-              <Picker.Item
-                label="Simple Rules Basic"
-                value="Simple Rules Basic"
-              />
-            </Picker>
+            <Text style={styles.label}>Công thức</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={settings.simpleRule}
+                style={styles.picker}
+                onValueChange={(val) =>
+                  setSettings({ ...settings, simpleRule: val })
+                }
+                accessible={true}
+                accessibilityLabel="Chọn công thức"
+              >
+                <Picker.Item
+                  label="Simple Rules Basic"
+                  value="Simple Rules Basic"
+                />
+              </Picker>
+            </View>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Type Test:</Text>
-            <Picker
-              selectedValue={settings.typeTest}
-              style={styles.picker}
-              onValueChange={(val) =>
-                setSettings({ ...settings, typeTest: val })
-              }
-            >
-              <Picker.Item label="Visual" value="Visual" />
-            </Picker>
+            <Text style={styles.label}>Chữ số</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={settings.digits}
+                style={styles.picker}
+                onValueChange={(val) =>
+                  setSettings({ ...settings, digits: val })
+                }
+                accessible={true}
+                accessibilityLabel="Chọn phạm vi chữ số"
+              >
+                <Picker.Item label="1D < 10" value="1d<10" />
+                <Picker.Item label="1D ≥ 10" value="1d>10" />
+                <Picker.Item label="2D < 100" value="2d<100" />
+                <Picker.Item label="2D ≥ 100" value="2d>100" />
+                <Picker.Item label="3D < 1.000" value="3d<1000" />
+                <Picker.Item label="3D ≥ 1.000" value="3d>1000" />
+                <Picker.Item label="4D < 10.000" value="4d<10000" />
+                <Picker.Item label="4D ≥ 10.000" value="4d>10000" />
+                <Picker.Item label="5D < 100.000" value="5d<100000" />
+                <Picker.Item label="5D ≥ 100.000" value="5d>100000" />
+              </Picker>
+            </View>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Dạng bài</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={settings.typeTest}
+                style={styles.picker}
+                onValueChange={(val) =>
+                  setSettings({ ...settings, typeTest: val })
+                }
+                accessible={true}
+                accessibilityLabel="Chọn dạng bài"
+              >
+                <Picker.Item label="Visual" value="Visual" />
+              </Picker>
+            </View>
           </View>
           {[
-            { label: "Randoms:", key: "randoms" },
-            { label: "Speed(s):", key: "speed" },
-            { label: "Questions:", key: "questions" },
-            { label: "Score:", key: "score" },
-            { label: "Time Answers(s):", key: "timeAnswers" },
+            { label: "Số dòng", key: "randoms" },
+            { label: "Tổng thời gian câu hỏi (giây)", key: "speed" },
+            { label: "Số câu hỏi", key: "questions" },
+            { label: "Điểm mỗi câu", key: "score" },
+            { label: "Thời gian trả lời (giây)", key: "timeAnswers" },
           ].map((item) => (
             <View style={styles.row} key={item.key}>
               <Text style={styles.label}>{item.label}</Text>
@@ -251,53 +376,45 @@ export default function CountingWithQuizScreen() {
                 style={styles.input}
                 value={settings[item.key]}
                 keyboardType="numeric"
-                onChangeText={(val) =>
-                  setSettings({
-                    ...settings,
-                    [item.key]: val.replace(/[^0-9]/g, ""),
-                  })
-                }
+                onChangeText={(val) => handleInputChange(item.key, val)}
+                accessible={true}
+                accessibilityLabel={item.label}
               />
             </View>
           ))}
         </View>
 
-        {/* Khung xanh chỉ chứa chữ READY tĩnh */}
-        <View style={styles.greenBox}>
-          <View style={styles.readyBoxInside}>
-            <Text style={styles.readyText}>READY</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.startButton} onPress={handleStartQuiz}>
+        <TouchableOpacity
+          style={[styles.startButton, warning && styles.startButtonDisabled]}
+          onPress={handleStartQuiz}
+          disabled={!!warning}
+          accessible={true}
+          accessibilityLabel="Bắt đầu bài test"
+        >
           <Text style={styles.startText}>Bắt đầu</Text>
         </TouchableOpacity>
       </ScrollView>
     );
   }
 
-  // Nếu quiz đã bắt đầu, hiển thị giao diện chơi quiz
   return <QuizActive state={state} dispatch={dispatch} />;
 }
 
-// --- STYLES ---
 const styles = StyleSheet.create({
-  // Container cho màn hình cấu hình
   configContainer: {
     padding: 20,
     backgroundColor: "#F0F2F5",
     flexGrow: 1,
   },
-  // Container cho màn hình chơi quiz
   quizContainer: {
     flex: 1,
-    backgroundColor: "#E8F5E9", // Nền xanh nhạt để liền mạch
+    backgroundColor: "#E8F5E9",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: width < 400 ? 15 : 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: width < 400 ? 24 : 28,
     fontWeight: "bold",
     color: "#FF6F00",
     marginBottom: 20,
@@ -307,13 +424,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   label: {
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#333",
   },
-  picker: {
+  pickerContainer: {
     backgroundColor: "#fff",
-    ...Platform.select({ android: { height: 40 } }),
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    height: 40,
+    justifyContent: "center",
   },
+  picker: {},
   input: {
     height: 40,
     backgroundColor: "#fff",
@@ -321,6 +445,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: "#ccc",
     borderWidth: 1,
+    fontSize: 16,
   },
   startButton: {
     marginTop: 20,
@@ -334,6 +459,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  startButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
   startText: {
     color: "#fff",
     fontWeight: "bold",
@@ -346,9 +474,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   questionText: {
-    fontSize: 50,
     fontWeight: "bold",
-    color: "#333",
     textAlign: "center",
   },
   options: {
@@ -361,9 +487,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#FFA726",
     borderRadius: 10,
-    padding: 15,
+    padding: width < 400 ? 10 : 15,
     margin: 5,
-    minWidth: 70,
+    minWidth: width < 400 ? 80 : 100,
     alignItems: "center",
     backgroundColor: "#FFF",
   },
@@ -372,7 +498,6 @@ const styles = StyleSheet.create({
     borderColor: "#0288D1",
   },
   optionText: {
-    fontSize: 20,
     fontWeight: "bold",
   },
   checkBtn: {
@@ -418,7 +543,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
   },
-  // Khung xanh chung
+  warningText: {
+    color: "orange",
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: "center",
+  },
   greenBox: {
     borderWidth: 2,
     borderColor: "#4CAF50",
@@ -426,20 +556,33 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#E8F5E9",
     marginTop: 10,
+    width: "100%",
   },
-  // Box READY bên trong
-  readyBoxInside: {
-    marginVertical: 20,
-    paddingVertical: 30,
-    alignItems: "center",
-    backgroundColor: "#C8E6C9",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#388E3C",
+  finishedText: {
+    fontSize: 18,
+    textAlign: "center",
+    marginBottom: 10,
   },
-  readyText: {
-    fontSize: 28,
+  scoreText: {
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#333",
+    textAlign: "center",
+    color: "#FF6F00",
+  },
+  statsContainer: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  statsText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    backgroundColor: "rgba(255,255,255,0.7)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 5,
   },
 });
