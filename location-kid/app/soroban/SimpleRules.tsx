@@ -81,41 +81,47 @@ const QuizActive = ({ state, dispatch }) => {
     return index % 2 === 0 ? "#0288D1" : "#F57C00";
   };
 
-  const renderQuestion = () => {
-    if (!state.quiz || !state.quiz.steps || state.quiz.steps.length === 0) {
-      return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Đang tải...</Text>;
-    }
+const renderQuestion = () => {
+  if (!state.quiz || !state.quiz.steps || state.quiz.steps.length === 0) {
+    return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Đang tải...</Text>;
+  }
 
-    const isLastStep = state.stepIndex === state.quiz.steps.length - 1;
-    const showAnswer = isLastStep && state.result !== null;
+  const isLastStep = state.stepIndex === state.quiz.steps.length - 1;
+  const showAnswer = isLastStep && state.result !== null;
 
-    if (showAnswer) {
-      const expression = state.quiz.steps
-        .slice(0, -1)
-        .map((s, index) => (
-          <Text key={index} style={{ color: getStepColor(index) }}>
-            {s.display.replace("+", "").trim()}
-            {index < state.quiz.steps.length - 2 ? " + " : " "}
-          </Text>
-        ));
+  if (showAnswer) {
+    const expression = state.quiz.steps.slice(0, -1).map((s, index) => {
+      const isFirst = index === 0;
+      const parts = s.display.trim().split(' ');
+      const number = isFirst ? parts[0] : parts[1]; // First step has no operator
+      // Get operator from the *next* step's display, if available
+      const nextStep = index + 1 < state.quiz.steps.length - 1 ? state.quiz.steps[index + 1] : null;
+      const operator = nextStep ? nextStep.display.trim().split(' ')[0] : '';
       return (
-        <Text style={[styles.questionText, { fontSize: getFontSize() }]}>
-          {expression} = {state.quiz.correct}
+        <Text key={index} style={{ color: getStepColor(index) }}>
+          {number}
+          {index < state.quiz.steps.length - 2 ? ` ${operator} ` : ''}
         </Text>
       );
-    }
-
-    if (isLastStep) {
-      return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Kết quả = ???</Text>;
-    }
-
-    const currentStep = state.quiz.steps[state.stepIndex];
+    });
     return (
-      <Text style={[styles.questionText, { fontSize: getFontSize(), color: getStepColor(state.stepIndex) }]}>
-        {currentStep?.display}
+      <Text style={[styles.questionText, { fontSize: getFontSize() }]}>
+        {expression} = {state.quiz.correct}
       </Text>
     );
-  };
+  }
+
+  if (isLastStep) {
+    return <Text style={[styles.questionText, { fontSize: getFontSize() }]}>Kết quả = ???</Text>;
+  }
+
+  const currentStep = state.quiz.steps[state.stepIndex];
+  return (
+    <Text style={[styles.questionText, { fontSize: getFontSize(), color: getStepColor(state.stepIndex) }]}>
+      {currentStep?.display}
+    </Text>
+  );
+};
 
   return (
     <View style={styles.quizContainer}>
