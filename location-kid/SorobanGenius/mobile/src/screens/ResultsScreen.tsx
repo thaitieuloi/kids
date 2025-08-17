@@ -3,10 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   SafeAreaView,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -55,7 +56,11 @@ export default function ResultsScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 140 }}
+      >
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
@@ -64,7 +69,7 @@ export default function ResultsScreen({ navigation, route }: Props) {
           </View>
 
           {/* Score Card */}
-          <View style={styles.scoreCard}>
+          <View style={styles.card}>
             <View style={styles.scoreHeader}>
               <Text style={styles.scoreTitle}>Điểm số</Text>
               <Text style={[styles.scoreValue, { color: getScoreColor(accuracy) }]}>
@@ -91,7 +96,7 @@ export default function ResultsScreen({ navigation, route }: Props) {
 
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
+            <View style={[styles.statCard, { marginRight: 12 }]}>
               <Text style={styles.statLabel}>Thời gian trung bình</Text>
               <Text style={styles.statValue}>{averageTime.toFixed(1)}s</Text>
             </View>
@@ -106,7 +111,7 @@ export default function ResultsScreen({ navigation, route }: Props) {
           <View style={styles.detailsCard}>
             <Text style={styles.detailsTitle}>Chi tiết từng câu hỏi</Text>
             
-            <View style={styles.questionsList}>
+            <View>
               {session.problems.map((problem, index) => {
                 const answer = session.answers.find(a => a.problemId === problem.id) || session.answers[index];
                 const isCorrect = answer?.isCorrect || false;
@@ -121,7 +126,8 @@ export default function ResultsScreen({ navigation, route }: Props) {
                         backgroundColor: isCorrect ? '#F0FDF4' : 
                                         wasSkipped ? '#FFFBEB' : '#FEF2F2',
                         borderColor: isCorrect ? '#10B981' : 
-                                   wasSkipped ? '#F59E0B' : '#EF4444'
+                                   wasSkipped ? '#F59E0B' : '#EF4444',
+                        marginBottom: 12
                       }
                     ]}
                   >
@@ -193,25 +199,39 @@ export default function ResultsScreen({ navigation, route }: Props) {
 
       {/* Action Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.primaryButton}
+        <Pressable
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && { opacity: 0.85 }
+          ]}
           onPress={handlePlayAgain}
-          activeOpacity={0.8}
         >
           <Text style={styles.primaryButtonText}>🔄 Chơi lại</Text>
-        </TouchableOpacity>
+        </Pressable>
         
-        <TouchableOpacity
-          style={styles.secondaryButton}
+        <Pressable
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            pressed && { backgroundColor: '#F3F4F6' }
+          ]}
           onPress={handleBackToHome}
-          activeOpacity={0.8}
         >
           <Text style={styles.secondaryButtonText}>🏠 Về trang chủ</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
 }
+
+const cardShadow = Platform.OS === 'web'
+  ? { boxShadow: '0 4px 6px rgba(0,0,0,0.1)' as any }
+  : {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 6,
+      elevation: 8,
+    };
 
 const styles = StyleSheet.create({
   container: {
@@ -223,7 +243,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 120, // Space for buttons
   },
   header: {
     alignItems: 'center',
@@ -238,20 +257,13 @@ const styles = StyleSheet.create({
   emoji: {
     fontSize: 48,
   },
-  scoreCard: {
+  card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
     marginBottom: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 8,
+    ...cardShadow,
   },
   scoreHeader: {
     flexDirection: 'row',
@@ -286,7 +298,6 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    gap: 12,
     marginBottom: 20,
   },
   statCard: {
@@ -295,14 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 4,
+    ...cardShadow,
   },
   statLabel: {
     fontSize: 14,
@@ -319,14 +323,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 4,
+    ...cardShadow,
   },
   detailsTitle: {
     fontSize: 18,
@@ -334,9 +331,6 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     marginBottom: 16,
     textAlign: 'center',
-  },
-  questionsList: {
-    gap: 12,
   },
   questionItem: {
     borderRadius: 12,
@@ -395,12 +389,12 @@ const styles = StyleSheet.create({
   },
   answersContainer: {
     width: '100%',
-    gap: 4,
   },
   answerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 4,
   },
   answerLabel: {
     fontSize: 14,
@@ -420,21 +414,13 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
-    gap: 12,
   },
   primaryButton: {
     backgroundColor: '#4F46E5',
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#4F46E5',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    marginBottom: 12,
   },
   primaryButtonText: {
     fontSize: 18,

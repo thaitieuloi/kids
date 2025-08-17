@@ -189,12 +189,12 @@ export default function GameScreen({ navigation, route }: Props) {
           </View>
 
           {/* Soroban Display */}
-          <SorobanDisplay 
+          {/* <SorobanDisplay 
             number={currentProblem.operator === '+' ? 
               currentProblem.number1 + currentProblem.number2 : 
               currentProblem.number1
             } 
-          />
+          /> */}
         </View>
 
         {/* Answer Input */}
