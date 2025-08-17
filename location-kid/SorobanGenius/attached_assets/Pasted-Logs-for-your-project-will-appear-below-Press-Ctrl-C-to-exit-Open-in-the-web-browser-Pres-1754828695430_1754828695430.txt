@@ -1,0 +1,28 @@
+Logs for your project will appear below. Press Ctrl+C to exit.
+› Open in the web browser...
+› Press ? │ show all commands
+Web Bundling failed 1587ms D:\CNTT\kids\SorobanGenius\mobile\node_modules\expo\AppEntry.js (4 modules)
+Unable to resolve "react-native-web/dist/exports/AppRegistry" from "node_modules\expo\build\launch\registerRootComponent.js"
+Error: ENOENT: no such file or directory, open 'D:\CNTT\kids\SorobanGenius\mobile\assets\favicon.png'
+    at Object.openSync (node:fs:555:18)
+    at readFileSync (node:fs:439:35)
+    at calculateHash (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:13:73)
+    at createCacheKey (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:19:16)
+    at Object.createCacheKeyWithDirectoryAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:28:31)
+    at generateImageAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Image.ts:182:32)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at getFaviconFromExpoConfigAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\export\favicon.ts:83:24)
+    at FaviconMiddleware.handleRequestAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\start\server\middleware\FaviconMiddleware.ts:29:20)   
+    at internalMiddleware (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\start\server\middleware\ExpoMiddleware.ts:44:16)
+Web Bundling failed 18ms D:\CNTT\kids\SorobanGenius\mobile\node_modules\expo\AppEntry.js (1 module)
+Unable to resolve "react-native-web/dist/exports/AppRegistry" from "node_modules\expo\build\launch\registerRootComponent.js"
+Error: ENOENT: no such file or directory, open 'D:\CNTT\kids\SorobanGenius\mobile\assets\favicon.png'
+    at Object.openSync (node:fs:555:18)
+    at readFileSync (node:fs:439:35)
+    at calculateHash (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:13:73)
+    at createCacheKey (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:19:16)
+    at Object.createCacheKeyWithDirectoryAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Cache.ts:28:31)
+    at generateImageAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\image-utils\src\Image.ts:182:32)
+    at getFaviconFromExpoConfigAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\export\favicon.ts:83:24)
+    at FaviconMiddleware.handleRequestAsync (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\start\server\middleware\FaviconMiddleware.ts:29:20)   
+    at internalMiddleware (D:\CNTT\kids\SorobanGenius\mobile\node_modules\@expo\cli\src\start\server\middleware\ExpoMiddleware.ts:44:16)

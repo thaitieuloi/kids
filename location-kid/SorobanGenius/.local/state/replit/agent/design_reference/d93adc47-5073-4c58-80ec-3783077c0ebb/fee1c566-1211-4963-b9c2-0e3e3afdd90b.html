@@ -1,0 +1,666 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soroban Math - Toán Học Thông Minh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#4CAF50',
+                    secondary: '#FF9800', 
+                    accent: '#2196F3',
+                    success: '#8BC34A',
+                    error: '#F44336',
+                    warning: '#FFC107'
+                },
+                fontFamily: {
+                    'roboto': ['Roboto', 'sans-serif']
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-roboto">
+    <!-- @COMPONENT: AppContainer -->
+    <div id="app-container" class="min-h-screen">
+        
+        <!-- @COMPONENT: HomeScreen [active by default] -->
+        <div id="home-screen" class="screen active min-h-screen bg-gradient-to-br from-blue-100 to-green-100 p-4">
+            <!-- Header -->
+            <div class="text-center py-8">
+                <div class="mb-4">
+                    <i class="fas fa-calculator text-6xl text-primary"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Soroban Math</h1>
+                <p class="text-lg text-gray-600">Toán học thông minh cho trẻ em</p>
+            </div>
+
+            <!-- Difficulty Levels -->
+            <div class="max-w-md mx-auto space-y-4">
+                <!-- @COMPONENT: DifficultyCard [level="beginner"] -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-400 transform transition-all hover:scale-105" data-event="click:selectLevel" data-level="beginner">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-seedling text-2xl text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-800">Anh bạn nhỏ</h3>
+                            <p class="text-gray-600">Bắt đầu với những phép tính đơn giản</p>
+                            <div class="flex items-center mt-2">
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">Cộng trừ cơ bản</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: DifficultyCard -->
+
+                <!-- @COMPONENT: DifficultyCard [level="intermediate"] -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-orange-400 transform transition-all hover:scale-105" data-event="click:selectLevel" data-level="intermediate">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-star text-2xl text-orange-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-800">Anh bạn lớn</h3>
+                            <p class="text-gray-600">Thử thách với số lớn hơn</p>
+                            <div class="flex items-center mt-2">
+                                <span class="text-sm bg-orange-100 text-orange-800 px-2 py-1 rounded-full">Số 3-4 chữ số</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: DifficultyCard -->
+
+                <!-- @COMPONENT: DifficultyCard [level="advanced"] -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-400 transform transition-all hover:scale-105" data-event="click:selectLevel" data-level="advanced">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-rocket text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-gray-800">Ứng dụng mạnh mẽ</h3>
+                            <p class="text-gray-600">Thách thức cho chuyên gia nhí</p>
+                            <div class="flex items-center mt-2">
+                                <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Phép tính phức tạp</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: DifficultyCard -->
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="max-w-md mx-auto mt-8">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Thống kê của bạn</h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-primary" data-bind="stats.totalQuestions">156</div>
+                            <div class="text-sm text-gray-600">Câu hỏi</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-success" data-bind="stats.correctAnswers">142</div>
+                            <div class="text-sm text-gray-600">Đúng</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-secondary" data-bind="stats.accuracy">91%</div>
+                            <div class="text-sm text-gray-600">Chính xác</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: HomeScreen -->
+
+        <!-- @COMPONENT: SettingsScreen [hidden by default] -->
+        <div id="settings-screen" class="screen hidden min-h-screen bg-gray-50 p-4">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center" data-event="click:goBack">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800">Cài đặt</h2>
+                <div class="w-10"></div>
+            </div>
+
+            <div class="max-w-md mx-auto">
+                <!-- Level Info -->
+                <div class="bg-white rounded-2xl p-6 mb-6 shadow-lg">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-seedling text-green-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold" data-bind="selectedLevel.name">Anh bạn nhỏ</h3>
+                            <p class="text-sm text-gray-600" data-bind="selectedLevel.description">Cấp độ dễ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Form -->
+                <div class="space-y-4">
+                    <!-- Number of Questions -->
+                    <div class="bg-white rounded-xl p-4 shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Số câu hỏi</label>
+                        <div class="flex items-center space-x-4">
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:decreaseQuestions">
+                                <i class="fas fa-minus text-gray-600"></i>
+                            </button>
+                            <span class="text-xl font-semibold text-gray-800 min-w-[3rem] text-center" data-bind="settings.questionCount">10</span>
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:increaseQuestions">
+                                <i class="fas fa-plus text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Number of Rows -->
+                    <div class="bg-white rounded-xl p-4 shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Số dòng (Soroban)</label>
+                        <div class="flex items-center space-x-4">
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:decreaseRows">
+                                <i class="fas fa-minus text-gray-600"></i>
+                            </button>
+                            <span class="text-xl font-semibold text-gray-800 min-w-[3rem] text-center" data-bind="settings.rowCount">3</span>
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:increaseRows">
+                                <i class="fas fa-plus text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Time Limit -->
+                    <div class="bg-white rounded-xl p-4 shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Thời gian mỗi câu (giây)</label>
+                        <div class="flex items-center space-x-4">
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:decreaseTime">
+                                <i class="fas fa-minus text-gray-600"></i>
+                            </button>
+                            <span class="text-xl font-semibold text-gray-800 min-w-[3rem] text-center" data-bind="settings.timeLimit">30</span>
+                            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center" data-event="click:increaseTime">
+                                <i class="fas fa-plus text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Number Range -->
+                    <div class="bg-white rounded-xl p-4 shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Giới hạn số</label>
+                        <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" data-bind="settings.numberRange">
+                            <option value="100">Dưới 100</option>
+                            <option value="1000">Dưới 1,000</option>
+                            <option value="10000">Dưới 10,000</option>
+                        </select>
+                    </div>
+
+                    <!-- Audio Settings -->
+                    <div class="bg-white rounded-xl p-4 shadow-md">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Cài đặt âm thanh</label>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Âm thanh phản hồi</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked data-bind="settings.feedbackSound">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Đọc số</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" data-bind="settings.numberReading">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Âm thanh chuyển đổi</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked data-bind="settings.transitionSound">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start Button -->
+                <button class="w-full bg-primary text-white py-4 rounded-2xl text-lg font-semibold mt-8 shadow-lg transform transition-all hover:scale-105 active:scale-95" data-event="click:startGame">
+                    <i class="fas fa-play mr-2"></i>
+                    Bắt đầu chơi
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: SettingsScreen -->
+
+        <!-- @COMPONENT: GameScreen [hidden by default] -->
+        <div id="game-screen" class="screen hidden min-h-screen bg-gray-50 p-4">
+            <!-- Game Header -->
+            <div class="flex items-center justify-between mb-6">
+                <button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center" data-event="click:pauseGame">
+                    <i class="fas fa-pause text-gray-600"></i>
+                </button>
+                <div class="text-center">
+                    <div class="text-sm text-gray-600">Câu hỏi</div>
+                    <div class="text-lg font-semibold" data-bind="game.currentQuestion">3</div>
+                    <div class="text-sm text-gray-600">/ <span data-bind="game.totalQuestions">10</span></div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-600">Thời gian</div>
+                    <div class="text-lg font-semibold text-accent" data-bind="game.timeRemaining">25s</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="max-w-md mx-auto mb-8">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 30%" data-bind="game.progress"></div>
+                </div>
+            </div>
+
+            <!-- Soroban Display -->
+            <div class="max-w-md mx-auto mb-8">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-center text-lg font-semibold text-gray-800 mb-6">Phép tính</h3>
+                    
+                    <!-- @COMPONENT: SorobanDisplay -->
+                    <div class="space-y-4">
+                        <!-- @MAP: numbers.map(number => ( -->
+                        <div class="flex items-center justify-center space-x-8 p-4 bg-gray-50 rounded-xl" data-mock="true">
+                            <!-- Number Display -->
+                            <div class="text-right text-2xl font-bold text-gray-800 min-w-[4rem]" data-bind="calculation.number1">125</div>
+                            
+                            <!-- Soroban Visualization -->
+                            <div class="flex flex-col items-center space-y-1">
+                                <div class="text-xs text-gray-500">Soroban</div>
+                                <!-- Soroban Frame (simplified representation) -->
+                                <div class="bg-amber-800 p-2 rounded-lg">
+                                    <div class="grid grid-cols-3 gap-1">
+                                        <!-- Hundreds Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                        <!-- Tens Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                        <!-- Units Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+
+                        <!-- Operation -->
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-secondary" data-bind="calculation.operator">+</span>
+                        </div>
+
+                        <!-- Second Number -->
+                        <div class="flex items-center justify-center space-x-8 p-4 bg-gray-50 rounded-xl" data-mock="true">
+                            <div class="text-right text-2xl font-bold text-gray-800 min-w-[4rem]" data-bind="calculation.number2">67</div>
+                            <div class="flex flex-col items-center space-y-1">
+                                <div class="text-xs text-gray-500">Soroban</div>
+                                <div class="bg-amber-800 p-2 rounded-lg">
+                                    <div class="grid grid-cols-3 gap-1">
+                                        <!-- Hundreds Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                        <!-- Tens Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                        <!-- Units Column -->
+                                        <div class="flex flex-col space-y-1">
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="border-t border-amber-900 w-4"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-400 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                            <div class="w-4 h-2 bg-amber-600 rounded"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Equals -->
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-gray-800">=</span>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: SorobanDisplay -->
+                </div>
+            </div>
+
+            <!-- Answer Input -->
+            <div class="max-w-md mx-auto mb-8">
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <label class="block text-center text-lg font-semibold text-gray-800 mb-4">Kết quả của bạn</label>
+                    <input type="number" class="w-full text-center text-3xl font-bold p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="?" data-bind="game.userAnswer" data-event="input:validateAnswer">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="max-w-md mx-auto grid grid-cols-2 gap-4">
+                <button class="bg-gray-500 text-white py-3 px-6 rounded-xl font-semibold shadow-lg transform transition-all hover:scale-105 active:scale-95" data-event="click:skipQuestion">
+                    <i class="fas fa-forward mr-2"></i>
+                    Bỏ qua
+                </button>
+                <button class="bg-primary text-white py-3 px-6 rounded-xl font-semibold shadow-lg transform transition-all hover:scale-105 active:scale-95" data-event="click:submitAnswer">
+                    <i class="fas fa-check mr-2"></i>
+                    Trả lời
+                </button>
+            </div>
+
+            <!-- Audio Controls -->
+            <div class="max-w-md mx-auto mt-6 text-center">
+                <button class="bg-accent text-white px-4 py-2 rounded-lg shadow-md" data-event="click:readNumbers" data-implementation="Text-to-speech for numbers">
+                    <i class="fas fa-volume-up mr-2"></i>
+                    Đọc số
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: GameScreen -->
+
+        <!-- @COMPONENT: ResultsScreen [hidden by default] -->
+        <div id="results-screen" class="screen hidden min-h-screen bg-gradient-to-br from-green-100 to-blue-100 p-4">
+            <!-- Celebration Header -->
+            <div class="text-center py-8">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Tuyệt vời!</h2>
+                <p class="text-lg text-gray-600">Bạn đã hoàn thành bài tập</p>
+            </div>
+
+            <!-- Results Summary -->
+            <div class="max-w-md mx-auto space-y-4">
+                <!-- Score Overview -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg text-center">
+                    <div class="text-4xl font-bold text-primary mb-2" data-bind="results.score">8/10</div>
+                    <div class="text-lg text-gray-600">Số câu đúng</div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-success h-3 rounded-full transition-all duration-500" style="width: 80%" data-bind="results.percentage"></div>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">Tỷ lệ chính xác: <span class="font-semibold" data-bind="results.accuracy">80%</span></div>
+                    </div>
+                </div>
+
+                <!-- Performance Stats -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Chi tiết kết quả</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-green-50 rounded-xl">
+                            <div class="text-2xl font-bold text-success" data-bind="results.correct">8</div>
+                            <div class="text-sm text-gray-600">Câu đúng</div>
+                        </div>
+                        <div class="text-center p-3 bg-red-50 rounded-xl">
+                            <div class="text-2xl font-bold text-error" data-bind="results.incorrect">2</div>
+                            <div class="text-sm text-gray-600">Câu sai</div>
+                        </div>
+                        <div class="text-center p-3 bg-blue-50 rounded-xl">
+                            <div class="text-2xl font-bold text-accent" data-bind="results.avgTime">22s</div>
+                            <div class="text-sm text-gray-600">TB thời gian</div>
+                        </div>
+                        <div class="text-center p-3 bg-orange-50 rounded-xl">
+                            <div class="text-2xl font-bold text-secondary" data-bind="results.totalTime">3:40</div>
+                            <div class="text-sm text-gray-600">Tổng thời gian</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Badge -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2" data-bind="results.badge">Học sinh giỏi!</h3>
+                    <p class="text-gray-600" data-bind="results.badgeMessage">Bạn đã làm rất tốt. Tiếp tục luyện tập nhé!</p>
+                </div>
+
+                <!-- Question Review -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Xem lại câu hỏi</h3>
+                    <div class="space-y-3">
+                        <!-- @MAP: questions.map(question => ( -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-sm"></i>
+                                </div>
+                                <span class="text-gray-800" data-bind="question.expression">125 + 67</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-gray-800" data-bind="question.userAnswer">192</div>
+                                <div class="text-xs text-gray-500" data-bind="question.time">18s</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg" data-mock="true">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-error rounded-full flex items-center justify-center">
+                                    <i class="fas fa-times text-white text-sm"></i>
+                                </div>
+                                <span class="text-gray-800" data-bind="question.expression">89 - 34</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-error" data-bind="question.userAnswer">54</div>
+                                <div class="text-xs text-success">Đúng: 55</div>
+                                <div class="text-xs text-gray-500" data-bind="question.time">30s</div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="max-w-md mx-auto mt-8 space-y-4">
+                <button class="w-full bg-primary text-white py-4 rounded-2xl text-lg font-semibold shadow-lg transform transition-all hover:scale-105 active:scale-95" data-event="click:playAgain">
+                    <i class="fas fa-redo mr-2"></i>
+                    Chơi lại
+                </button>
+                <button class="w-full bg-white text-gray-800 py-4 rounded-2xl text-lg font-semibold shadow-lg border border-gray-200 transform transition-all hover:scale-105 active:scale-95" data-event="click:backToHome">
+                    <i class="fas fa-home mr-2"></i>
+                    Về trang chủ
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ResultsScreen -->
+
+        <!-- @COMPONENT: PauseModal [hidden by default] -->
+        <div id="pause-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+                <div class="text-center mb-6">
+                    <i class="fas fa-pause-circle text-4xl text-gray-400 mb-3"></i>
+                    <h3 class="text-xl font-semibold text-gray-800">Tạm dừng</h3>
+                    <p class="text-gray-600 mt-2">Bạn có muốn tiếp tục?</p>
+                </div>
+                <div class="space-y-3">
+                    <button class="w-full bg-primary text-white py-3 rounded-xl font-semibold" data-event="click:resumeGame">
+                        <i class="fas fa-play mr-2"></i>
+                        Tiếp tục
+                    </button>
+                    <button class="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold" data-event="click:quitGame">
+                        <i class="fas fa-stop mr-2"></i>
+                        Kết thúc
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: PauseModal -->
+
+    </div>
+    <!-- @END_COMPONENT: AppContainer -->
+
+    <script>
+        // TODO: Implement React Native app logic, state management, and Expo build configuration
+        // TODO: Add proper navigation between screens
+        // TODO: Implement Soroban calculation logic
+        // TODO: Add audio feedback and text-to-speech functionality
+        // TODO: Implement timer and score tracking
+        // TODO: Add persistent settings storage
+        // TODO: Implement proper mobile app lifecycle management
+
+        (function() {
+            // Screen navigation state management
+            const screens = {
+                home: document.getElementById('home-screen'),
+                settings: document.getElementById('settings-screen'),
+                game: document.getElementById('game-screen'),
+                results: document.getElementById('results-screen')
+            };
+
+            const modals = {
+                pause: document.getElementById('pause-modal')
+            };
+
+            let currentScreen = 'home';
+            let selectedLevel = null;
+
+            // Screen navigation functions
+            function showScreen(screenName) {
+                Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+                screens[screenName].classList.remove('hidden');
+                currentScreen = screenName;
+            }
+
+            function showModal(modalName) {
+                modals[modalName].classList.remove('hidden');
+            }
+
+            function hideModal(modalName) {
+                modals[modalName].classList.add('hidden');
+            }
+
+            // Event listeners for basic navigation
+            document.querySelectorAll('[data-event="click:selectLevel"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    selectedLevel = this.dataset.level;
+                    showScreen('settings');
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:goBack"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (currentScreen === 'settings') {
+                        showScreen('home');
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:startGame"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showScreen('game');
+                    // TODO: Initialize game state and timer
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:pauseGame"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showModal('pause');
+                    // TODO: Pause game timer
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:resumeGame"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    hideModal('pause');
+                    // TODO: Resume game timer
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:quitGame"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    hideModal('pause');
+                    showScreen('results');
+                    // TODO: Calculate final results
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:playAgain"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showScreen('settings');
+                });
+            });
+
+            document.querySelectorAll('[data-event="click:backToHome"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showScreen('home');
+                });
+            });
+
+            // Settings management
+            const defaultSettings = {
+                questionCount: 10,
+                rowCount: 3,
+                timeLimit: 30,
+                numberRange: 100,
+                feedbackSound: true,
+                numberReading: false,
+                transitionSound: true
+            };
+
+            let currentSettings = { ...defaultSettings };
+
+            // Settings increment/decrement handlers
+            document.querySelectorAll('[data-event*="increase"], [data-event*="decrease"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.dataset.event;
+                    // TODO: Implement settings adjustment logic
+                    console.log('Settings action:', action);
+                });
+            });
+
+            // TODO: Implement complete game logic
+            // TODO: Add Soroban visualization logic
+            // TODO: Implement audio system
+            // TODO: Add persistent storage
+            // TODO: Implement answer validation
+            // TODO: Add timer countdown
+            // TODO: Generate random math problems
+            // TODO: Calculate performance metrics
+        })();
+    </script>
+</body>
+</html>
