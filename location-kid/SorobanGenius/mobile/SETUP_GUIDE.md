@@ -65,8 +65,8 @@ eas build:configure
 
 #### Build APK
 ```bash
-# Build cho Android
-eas build --platform android --profile preview
+eas build --platform android --profile preview# Build cho Android
+
 
 # Build cho cả Android và iOS
 eas build --platform all
