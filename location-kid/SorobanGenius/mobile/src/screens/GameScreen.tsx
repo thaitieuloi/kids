@@ -31,7 +31,7 @@ export default function GameScreen({ navigation, route }: Props) {
   const [userAnswer, setUserAnswer] = useState('');
   const [answers, setAnswers] = useState<GameAnswer[]>([]);
   const [problems, setProblems] = useState<MathProblem[]>([]);
-  const [startTime] = useState(new Date());
+    const [startTime] = useState(Date.now());
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [isPaused, setIsPaused] = useState(false);
 
@@ -125,8 +125,8 @@ export default function GameScreen({ navigation, route }: Props) {
         settings,
         problems,
         answers: newAnswers,
-        startTime,
-        endTime: new Date(),
+         startTime,
+         endTime: Date.now(),
         score: newAnswers.filter(a => a.isCorrect).length,
         totalTime: newAnswers.reduce((total, a) => total + a.timeSpent, 0),
       };
